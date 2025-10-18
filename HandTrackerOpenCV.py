@@ -64,7 +64,7 @@ while True:
             finger_status_side = fingers_side(hand_landmarks)
             gesture = ""
 
-            """
+            
             if finger_status == [0,0,0,0,0]:
                 gesture = "Fist "
             elif finger_status == [0,1,1,0,0]:
@@ -73,7 +73,9 @@ while True:
                 gesture = "spideman "
             elif finger_status == [1,1,0,0,1]:
                 gesture = "rock"
-            """
+            elif finger_status == [1,0,1,0,0]:
+                gesture = "middle finger"
+            
 
             if finger_status_side == [1,1,0,0,0]:
                 gesture = "index pointing right"
