@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+import time
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -11,6 +12,8 @@ hands = mp_hands.Hands(
 )
 
 cap = cv2.VideoCapture(0)
+pTime = 0  # fps calculation
+
 def fingers_up(hand_landmarks):
     tips = [4, 8, 12, 16, 20]
     fingers = []
@@ -63,7 +66,6 @@ while True:
             finger_status = fingers_up(hand_landmarks)
             finger_status_side = fingers_side(hand_landmarks)
             gesture = ""
-
             
             if finger_status == [0,0,0,0,0]:
                 gesture = "Fist "
@@ -95,6 +97,14 @@ while True:
             )
 
             finger_status = fingers_up(hand_landmarks)
+
+    # FPS calculation
+    cTime = time.time()
+    fps = 1 / (cTime - pTime)
+    pTime = cTime
+
+    cv2.putText(frame, f"FPS: {int(fps)}", (10, 30),
+        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
     cv2.imshow("Webcam", frame)
 
