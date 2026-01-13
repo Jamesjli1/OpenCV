@@ -62,7 +62,10 @@ while True:
         break
 
     if result.multi_hand_landmarks:
-        for hand_landmarks in result.multi_hand_landmarks:
+        for hand_landmarks, hand_label in zip(result.multi_hand_landmarks, result.multi_handedness):
+            # Get left/right hand label
+            hand_name = hand_label.classification[0].label  # 'Left' or 'Right'
+
             finger_status = fingers_up(hand_landmarks)
             finger_status_side = fingers_side(hand_landmarks)
             gesture = ""
@@ -78,25 +81,24 @@ while True:
             elif finger_status == [1,0,1,0,0]:
                 gesture = "middle finger"
             
-
             if finger_status_side == [1,1,0,0,0]:
                 gesture = "index pointing right"
             elif finger_status_side == [1,0,1,1,1]:
                 gesture = "index pointing left"
-            
-
-
+                    
             print(gesture)
 
-            cv2.putText(frame, gesture, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 3)
 
-            mp_drawing.draw_landmarks(
-                frame,
-                hand_landmarks,
-                mp_hands.HAND_CONNECTIONS
-            )
+            # Draw hand and show text
+            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-            finger_status = fingers_up(hand_landmarks)
+            # Find bounding box for text placement
+            h, w, _ = frame.shape
+            x_min = int(min([lm.x for lm in hand_landmarks.landmark]) * w)
+            y_min = int(min([lm.y for lm in hand_landmarks.landmark]) * h)
+
+            cv2.putText(frame, f"{hand_name}: {gesture}", (x_min - 20, y_min - 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3)
 
     # FPS calculation
     cTime = time.time()
@@ -108,10 +110,8 @@ while True:
 
     cv2.imshow("Webcam", frame)
 
-  
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
 
 cap.release()
 cv2.destroyAllWindows()
